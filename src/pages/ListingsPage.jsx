@@ -5,6 +5,7 @@ import { Box, Button, Card, CardContent, CardMedia, TextField, Typography, Paper
 import { toast } from "react-toastify";
 import { LISTINGS_QUERY, ADD_FAVORITE_MUTATION, REMOVE_FAVORITE_MUTATION } from "../store/query&mutation";
 import { authStore } from "../store/authStore";
+import { Commet } from "react-loading-indicators";
 
 const ListingsPage = () => {
   const navigate = useNavigate();
@@ -17,7 +18,7 @@ const ListingsPage = () => {
   const [maxPrice, setMaxPrice] = useState("");
 
   const { data, loading, error, refetch } = useQuery(LISTINGS_QUERY, {
-    variables: { limit: 6, page, search },
+    variables: { limit: 10, page, search },
   });
 
   const [addFavorite] = useMutation(ADD_FAVORITE_MUTATION, {
@@ -30,9 +31,12 @@ const ListingsPage = () => {
     onError: (err) => toast.error(err.message),
   });
 
-  const handleFavorite = (e, item) => {
-    e.stopPropagation();
-    if (!accessToken) { toast.info("Please login first."); navigate("/login"); return; }
+  const handleFavorite = (item) => {
+    if (!accessToken) { 
+      toast.info("Please login first."); 
+      navigate("/login"); 
+      return; 
+    }
     const mutation = item.isFavorite ? removeFavorite : addFavorite;
     mutation({ variables: { listingId: item.id } });
   };
@@ -72,7 +76,11 @@ const ListingsPage = () => {
         </Grid>
 
         <Grid item xs={12} md={8.5} lg={9}>
-          {loading && <Typography sx={{ mb: 2 }}>Loading...</Typography>}
+          {loading && (
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
+              <Commet color="#316dcc" size="medium" text=" Loading " textColor="#NaNNaNNaN" />
+            </Box>
+          )}
           {error && <Typography color="error" sx={{ mb: 2 }}>{error.message}</Typography>}
           {total === 0 && !loading && <Typography>Nothing found.</Typography>}
 
@@ -81,11 +89,13 @@ const ListingsPage = () => {
               <Grid item xs={12} sm={6} lg={4} key={item.id}>
                 <Card 
                   sx={{ 
-                    borderRadius: 2, 
-                    boxShadow: "0px 4px 12px rgba(0,0,0,0.05)", 
+                    borderRadius: 3, 
+                    boxShadow: "none", 
+                    border: "1px solid #e0e0e0",
                     height: "100%", 
                     display: "flex", 
-                    flexDirection: "column"
+                    flexDirection: "column",
+                    transition: "transform 0.2s, box-shadow 0.2s",
                   }}
                 >
                   {item.images?.length > 0 && (
@@ -97,36 +107,46 @@ const ListingsPage = () => {
                     />
                   )}
 
-                  <CardContent sx={{ flexGrow: 1, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                  <CardContent sx={{ flexGrow: 1, display: "flex", flexDirection: "column", justifyContent: "space-between", p: 2 }}>
                     <Box>
-                      <Typography variant="subtitle1" sx={{ fontWeight: "bold" }} noWrap>
-                        {item.title}
-                      </Typography>
+                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 0.5 }}>
+                        <Typography variant="subtitle1" sx={{ fontWeight: "bold", flex: 1, pr: 1 }} wrap>
+                          {item.title}
+                        </Typography>
+                        <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                         {item.rating || "New"}
+                        </Typography>
+                      </Box>
+                      
                       <Typography variant="body2" color="text.secondary">
                         {item.location}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-                        {item.rating}
                       </Typography>
                     </Box>
                     
                     <Box sx={{ mt: 2 }}>
-                      <Typography variant="body2" sx={{ mb: 1 }}>
-                        <b>${item.pricePerNight}</b> / night
+                      <Typography variant="body2" sx={{ mb: 1.5 }}>
+                        <b>${item.pricePerNight}</b> <span style={{ color: "#717171" }}>/ night</span>
                       </Typography>
+                      
                       <Stack direction="row" spacing={1}>
                         <Button 
                           variant={item.isFavorite ? "contained" : "outlined"} 
+                          color={item.isFavorite ? "error" : "primary"}
                           size="small" 
-                          onClick={(e) => handleFavorite(e, item)}
+                          fullWidth
+                          onClick={() => handleFavorite(item)}
+                          sx={{ textTransform: "none", fontWeight: "600", borderRadius: 1.5 }}
                         >
-                          {item.isFavorite ? "Favorite" : "Favorite"}
+                          {item.isFavorite ? "❤️ Favorite" : "♡ Favorite"}
                         </Button>
+                        
                         <Button 
                           variant="contained" 
                           size="small" 
                           color="primary"
+                          fullWidth
                           onClick={() => navigate(`/listings/${item.id}`)}
+                          sx={{ textTransform: "none", fontWeight: "600", borderRadius: 1.5 }}
                         >
                           Details
                         </Button>
@@ -139,13 +159,14 @@ const ListingsPage = () => {
           </Grid>
 
           {totalPages > 0 && (
-            <Box sx={{ display: "flex", gap: 1, mt: 4, justifyContent: "center" }}>
-              {Array.from({ length: totalPages }).map((_, index) => (
+            <Box sx={{ display: "flex", gap: 1, mt: 5, justifyContent: "center" }}>
+              {new Array(totalPages).fill("").map((_, index) => (
                 <Button 
                   key={index} 
                   size="small"
                   variant={page === index + 1 ? "contained" : "outlined"} 
                   onClick={() => setPage(index + 1)}
+                  sx={{ minWidth: 36, borderRadius: 1.5 }}
                 >
                   {index + 1}
                 </Button>

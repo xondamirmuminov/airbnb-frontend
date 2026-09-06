@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react"; 
 import { useMutation } from "@apollo/client/react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -8,22 +8,31 @@ import {
   Paper,
   TextField,
   Typography,
-  CircularProgress,
 } from "@mui/material";
 import { LOGIN_MUTATION } from "../store/query&mutation";
 import { authStore } from "../store/authStore";
+import { Commet } from "react-loading-indicators";
 
 const ADMIN_EMAIL = "admin@example.com";
 
 function LoginPage() {
   const navigate = useNavigate();
+  
   const loginAction = authStore((state) => state.login);
+  const accessToken = authStore((state) => state.accessToken);
+  const user = authStore((state) => state.user);
+
+  useEffect(() => {
+    if (accessToken && (user?.email === ADMIN_EMAIL || user?.role === "ADMIN")) {
+      navigate("/admin");
+    }
+  }, [accessToken, user, navigate]);
 
   const [form, setForm] = useState({
     email: "",
     password: "",
   });
-
+  
   const [loginMutation, { loading }] = useMutation(LOGIN_MUTATION, {
     onCompleted: (data) => {
       const loginData = data?.login;
@@ -34,7 +43,9 @@ function LoginPage() {
 
       const loggedUser = loginData.user;
 
-      if (loggedUser.email === ADMIN_EMAIL || loggedUser.role === "ADMIN") {
+      const isAdminEmail = loggedUser.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+
+      if (isAdminEmail) {
         loginAction(loginData.accessToken, loggedUser);
         toast.success("Welcome, Admin!");
         navigate("/admin");
@@ -46,6 +57,7 @@ function LoginPage() {
       toast.error(err.message);
     },
   });
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -114,7 +126,7 @@ function LoginPage() {
             onClick={handleLogin}
             disabled={loading}
           >
-            {loading ? <CircularProgress size={24} color="inherit" /> : "Login"}
+            {loading ? <Commet color="#316dcc" size="medium" text=" Loading " textColor="#NaNNaNNaN" /> : "Login"}
           </Button>
         </Stack>
       </Paper>

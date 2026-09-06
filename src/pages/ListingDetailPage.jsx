@@ -20,6 +20,7 @@ import {
   REMOVE_FAVORITE_MUTATION,
   CREATE_BOOKING_MUTATION,
 } from "../store/query&mutation";
+import { Commet } from "react-loading-indicators";
 
 function ListingDetailPage() {
   const { id } = useParams();
@@ -76,7 +77,7 @@ function ListingDetailPage() {
     });
   };
 
-  if (loading) return <Box sx={{ display: "flex", justifyContent: "center" }}>Loading...</Box>;
+  if (loading) return <Box sx={{ display: "flex", justifyContent: "center" }}><Commet color="#316dcc" size="medium" text=" Loading " textColor="#NaNNaNNaN" /></Box>;
   if (error) return <Typography color="error">{error.message}</Typography>;
   if (!data?.listing) return <Typography>Listing not found.</Typography>;
 

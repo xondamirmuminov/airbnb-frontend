@@ -3,6 +3,7 @@ import { Container, Typography, Card, CardContent, Button, Box, Chip } from "@mu
 import { toast } from "react-toastify";
 import { BOOKINGS_QUERY, CANCEL_BOOKING_MUTATION } from "../store/query&mutation";
 import { useNavigate } from "react-router-dom";
+import { Commet } from "react-loading-indicators";
 
 function BookingsPage() {
   const { data, loading, error, refetch } = useQuery(BOOKINGS_QUERY);
@@ -13,7 +14,7 @@ function BookingsPage() {
     onError: (err) => toast.error(err.message),
   });
 
-  if (loading) return <Typography >Loading bookings...</Typography>;
+  if (loading) return <Box sx={{display: "flex",  alignItems: "center", }}><Commet color="#316dcc" size="medium" text=" Loading " textColor="#NaNNaNNaN" /></Box>;
   if (error) return <Typography color="error" >{error.message}</Typography>;
 
   const bookings = data?.bookings;

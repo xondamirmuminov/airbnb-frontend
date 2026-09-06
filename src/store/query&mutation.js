@@ -130,6 +130,12 @@ export const CREATE_LISTING_MUTATION = gql`
 `;
 
 
+export const DELETE_LISTING_MUTATION = gql`
+  mutation DeleteListing($id: ID!) {
+    deleteListing(id: $id)
+  }
+`;
+
 
 export const FAVORITES_QUERY = gql`
   query Favorites {

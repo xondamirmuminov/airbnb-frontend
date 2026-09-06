@@ -9,12 +9,12 @@ import {
   TextField,
   Typography,
   Stack,
-  CircularProgress,
   Box,
 } from "@mui/material";
 
 import { authStore } from "../store/authStore";
 import { REGISTER_MUTATION } from "../store/query&mutation";
+import { Commet } from "react-loading-indicators";
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -75,7 +75,6 @@ const RegisterPage = () => {
       return;
     }
 
-    // Server talabiga mos ravishda "input" olib tashlandi
     register({
       variables: {
         name,
@@ -160,7 +159,7 @@ const RegisterPage = () => {
               disabled={loading}
             >
               {loading ? (
-                <CircularProgress size={24} color="inherit" />
+                <Commet color="#316dcc" size="medium" text=" Loading " textColor="#NaNNaNNaN" />
               ) : (
                 "Register"
               )}
